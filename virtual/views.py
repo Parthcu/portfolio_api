@@ -78,11 +78,22 @@ def create_blog_post(request):
     except Exception as e:
         return Response({'error': str(e)}, status=400)
 
+
 @api_view(['GET'])
-def get_all_blog_posts(request):
-    blog_posts = BlogPost.objects.all()
-    serializer = BlogPostModelSerializer(blog_posts, many=True)
-    return Response(serializer.data)
+def get_all_blog_posts(request, post_id=None):
+    if post_id is not None:
+        # If post_id is provided, get a single blog post
+        try:
+            blog_post = BlogPost.objects.get(id=post_id)
+            serializer = BlogPostModelSerializer(blog_post)
+            return Response(serializer.data)
+        except BlogPost.DoesNotExist:
+            return Response({"message": "Blog post does not exist"}, status=404)
+    else:
+        # If post_id is not provided, get all blog posts
+        blog_posts = BlogPost.objects.all()
+        serializer = BlogPostModelSerializer(blog_posts, many=True)
+        return Response(serializer.data)
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -122,10 +133,20 @@ def create_research_post(request):
         return Response({'error': str(e)}, status=400)
 
 @api_view(['GET'])
-def get_all_research_posts(request):
-    research_posts = ResearchPost.objects.all()
-    serializer = ResearchPostModelSerializer(research_posts, many=True)
-    return Response(serializer.data)
+def get_all_research_posts(request, post_id=None):
+    if post_id is not None:
+        # If post_id is provided, get a single research post
+        try:
+            research_post = ResearchPost.objects.get(id=post_id)
+            serializer = ResearchPostModelSerializer(research_post)
+            return Response(serializer.data)
+        except ResearchPost.DoesNotExist:
+            return Response({"message": "Research post does not exist"}, status=404)
+    else:
+        # If post_id is not provided, get all research posts
+        research_posts = ResearchPost.objects.all()
+        serializer = ResearchPostModelSerializer(research_posts, many=True)
+        return Response(serializer.data)
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -175,3 +196,44 @@ class SuperuserLoginView(ObtainAuthToken):
         token, created = Token.objects.get_or_create(user=user)
         return Response({'token': token.key})
     
+# @api_view(['POST'])
+# def send_email(request):
+#     serializer = BulkEmailSerializer(data=request.data)
+#     if serializer.is_valid():
+#         data = serializer.validated_data
+#         sender_email = 'support.acca@cuidol.in'
+#         password = 'jnxjxjbfxlonnaey'  # Replace with your SMTP password
+
+#         subject = data.get("subject")
+#         body = data.get("body")
+
+#         receiver_emails = data.get("receiver_emails", [])
+
+#         smtp_server = "smtp.gmail.com"
+#         port = 465  # Use port 465 for SSL
+#         context = ssl.create_default_context()
+
+#         # List to store emails that failed to send
+#         failed_emails = []
+
+#         for receiver_email in receiver_emails:
+#             message = MIMEMultipart()
+#             message["From"] = sender_email
+#             message["To"] = receiver_email
+#             message["Subject"] = subject
+#             message.attach(MIMEText(body, "plain"))
+
+#             try:
+#                 with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+#                     server.login(sender_email, password)
+#                     server.sendmail(sender_email, receiver_email, message.as_string())
+#             except Exception as e:
+#                 # Log the exception or add the email to the list of failed emails
+#                 failed_emails.append({"email": receiver_email, "error": str(e)})
+
+#         if failed_emails:
+#             return Response({'message': 'Emails sent with some failures', 'failed_emails': failed_emails}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         else:
+#             return Response({'message': 'Emails sent successfully'}, status=status.HTTP_200_OK)
+
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

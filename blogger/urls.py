@@ -36,11 +36,13 @@ urlpatterns = [
     # BlogPost URLs
     path('blog-post/create/', create_blog_post, name='create_blog_post'),
     path('blog-post/all/', get_all_blog_posts, name='get_all_blog_posts'),
+    path('blog-post/all/<int:post_id>/',get_all_blog_posts, name='get_single_blog_post'),
     path('blog-post/delete/<int:pk>/', delete_blog_post, name='delete_blog_post'),
 
     # ResearchPost URLs
     path('research-post/create/', create_research_post, name='create_research_post'),
     path('research-post/all/', get_all_research_posts, name='get_all_research_posts'),
+    path('research-post/all/<int:post_id>/', get_all_blog_posts, name='get_single_blog_post'),
     path('research-post/delete/<int:pk>/', delete_research_post, name='delete_research_post'),
 
     # TextPost URLs
