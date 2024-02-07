@@ -142,8 +142,6 @@ def delete_research_post(request, pk):
 
 # TextPost CRUD operations
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([BasicAuthentication]) 
 def create_text_post(request):
     serializer = TextPostSerializer(data=request.data)
     if serializer.is_valid():

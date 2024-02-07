@@ -50,4 +50,5 @@ urlpatterns = [
 
     # Superuser login URL
     path('api/login/', SuperuserLoginView.as_view(), name='superuser_login'),
+    path('admin/', admin.site.urls),
 ]
