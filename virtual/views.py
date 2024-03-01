@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
 from .models import ProfilePic, BlogPost, TextPost,ResearchPost
-from .serializers import ProfilePicSerializer, BlogPostModelSerializer, TextPostSerializer, ResearchPostModelSerializer
+from .serializers import ProfilePicSerializer, BlogPostModelSerializer, TextPostSerializer, ResearchPostModelSerializer,BulkEmailSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -11,7 +11,10 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes,authentication_classes
-
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -196,44 +199,44 @@ class SuperuserLoginView(ObtainAuthToken):
         token, created = Token.objects.get_or_create(user=user)
         return Response({'token': token.key})
     
-# @api_view(['POST'])
-# def send_email(request):
-#     serializer = BulkEmailSerializer(data=request.data)
-#     if serializer.is_valid():
-#         data = serializer.validated_data
-#         sender_email = 'support.acca@cuidol.in'
-#         password = 'jnxjxjbfxlonnaey'  # Replace with your SMTP password
+@api_view(['POST'])
+def send_email(request):
+    serializer = BulkEmailSerializer(data=request.data)
+    if serializer.is_valid():
+        data = serializer.validated_data
+        sender_email = 'support.acca@cuidol.in'
+        password = 'jnxjxjbfxlonnaey'  # Replace with your SMTP password
 
-#         subject = data.get("subject")
-#         body = data.get("body")
+        subject = data.get("subject")
+        body = data.get("body")
 
-#         receiver_emails = data.get("receiver_emails", [])
+        receiver_emails = data.get("receiver_emails", [])
 
-#         smtp_server = "smtp.gmail.com"
-#         port = 465  # Use port 465 for SSL
-#         context = ssl.create_default_context()
+        smtp_server = "smtp.gmail.com"
+        port = 465  # Use port 465 for SSL
+        context = ssl.create_default_context()
 
-#         # List to store emails that failed to send
-#         failed_emails = []
+        # List to store emails that failed to send
+        failed_emails = []
 
-#         for receiver_email in receiver_emails:
-#             message = MIMEMultipart()
-#             message["From"] = sender_email
-#             message["To"] = receiver_email
-#             message["Subject"] = subject
-#             message.attach(MIMEText(body, "plain"))
+        for receiver_email in receiver_emails:
+            message = MIMEMultipart()
+            message["From"] = sender_email
+            message["To"] = receiver_email
+            message["Subject"] = subject
+            message.attach(MIMEText(body, "plain"))
 
-#             try:
-#                 with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-#                     server.login(sender_email, password)
-#                     server.sendmail(sender_email, receiver_email, message.as_string())
-#             except Exception as e:
-#                 # Log the exception or add the email to the list of failed emails
-#                 failed_emails.append({"email": receiver_email, "error": str(e)})
+            try:
+                with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+                    server.login(sender_email, password)
+                    server.sendmail(sender_email, receiver_email, message.as_string())
+            except Exception as e:
+                # Log the exception or add the email to the list of failed emails
+                failed_emails.append({"email": receiver_email, "error": str(e)})
 
-#         if failed_emails:
-#             return Response({'message': 'Emails sent with some failures', 'failed_emails': failed_emails}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-#         else:
-#             return Response({'message': 'Emails sent successfully'}, status=status.HTTP_200_OK)
+        if failed_emails:
+            return Response({'message': 'Emails sent with some failures', 'failed_emails': failed_emails}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({'message': 'Emails sent successfully'}, status=status.HTTP_200_OK)
 
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

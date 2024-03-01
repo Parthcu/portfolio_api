@@ -23,4 +23,9 @@ class TextPostSerializer(serializers.ModelSerializer):
         model = TextPost
         fields = ['id','title', 'email', 'content','created_at']
         
+class BulkEmailSerializer(serializers.Serializer):
+    receiver_emails = serializers.ListField(child=serializers.EmailField())
+    subject = serializers.CharField()
+    body = serializers.CharField()
+        
         

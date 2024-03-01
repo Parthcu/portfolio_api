@@ -23,8 +23,7 @@ from virtual.views import (
     create_profile_pic, get_all_profile_pics, delete_profile_pic,
     create_blog_post, get_all_blog_posts, delete_blog_post,
     create_research_post, get_all_research_posts, delete_research_post,
-    create_text_post, get_all_text_posts, delete_text_post,
-    SuperuserLoginView
+    create_text_post, get_all_text_posts, delete_text_post,send_email,SuperuserLoginView
 )
 
 urlpatterns = [
@@ -53,4 +52,5 @@ urlpatterns = [
     # Superuser login URL
     path('api/login/', SuperuserLoginView.as_view(), name='superuser_login'),
     path('admin/', admin.site.urls),
+    path('api/send-email/', send_email, name='send-email'),
 ]
