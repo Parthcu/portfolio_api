@@ -53,4 +53,6 @@ urlpatterns = [
     path('api/login/', SuperuserLoginView.as_view(), name='superuser_login'),
     path('admin/', admin.site.urls),
     path('api/send-email/', send_email, name='send-email'),
+    
+    # new api path
 ]
